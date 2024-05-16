@@ -2,37 +2,36 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
+    // MARK: - IBOtlets
+    @IBOutlet private weak var imageView: UIImageView!
+    
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
+    
+    // MARK: - Private properties
+    private var currentQuestionIndex = 0
+    private var correctAnswers = 0
+    
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         show(quiz: convert(model: questions[currentQuestionIndex]))
     }
     
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
-    
-    @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var textLabel: UILabel!
-    @IBOutlet private weak var counterLabel: UILabel!
-    @IBOutlet private weak var noButton: UIButton!
-    @IBOutlet private weak var yesButton: UIButton!
-    
+    // MARK: - IB Actions
     @IBAction private func yesButtonClicked(_ sender: Any) {
         let currentQuestion: QuizQuestion = questions[currentQuestionIndex]
-        if currentQuestion.correctAnswer == true {
-            showAnswerResult(isCorrect: true)
-        } else {
-            showAnswerResult(isCorrect: false)
-        }
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
     }
     @IBAction private func noButtonClicked(_ sender: Any) {
         let currentQuestion: QuizQuestion = questions[currentQuestionIndex]
-        if currentQuestion.correctAnswer == false {
-            showAnswerResult(isCorrect: true)
-        } else {
-            showAnswerResult(isCorrect: false)
-        }
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
     }
     
+    // MARK: - Private Methods
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage(),
                                  question: model.text,
@@ -101,6 +100,7 @@ final class MovieQuizViewController: UIViewController {
         }
     }
     
+    // MARK: - Data
     private struct QuizStepViewModel {
         let image: UIImage
         let question: String
