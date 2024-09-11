@@ -2,7 +2,7 @@
 //  AlertModel.swift
 //  MovieQuiz
 //
-//  Created by Andrei Gavrilenko on 10.09.2024.
+//  Created by Andrei Gavrilenko on 09.09.2024.
 //
 
 import Foundation
