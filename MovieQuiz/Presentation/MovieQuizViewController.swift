@@ -18,6 +18,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
+    private var statisticService: StatisticServiceProtocol?
     
     public func setCurrentQuestionIndexZero() {
         self.currentQuestionIndex = 0
@@ -32,21 +33,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         alertPresenter = AlertPresenter()
         questionFactory = QuestionFactory(delegate: self)
-        
         questionFactory?.requestNextQuestion()
+        statisticService = StatisticService()
     }
     
     // MARK: - QuestionFactoryDelegate.
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
-                return
-            }
-
-            currentQuestion = question
-            let viewModel = convert(model: question)
+            return
+        }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
-                self?.show(quiz: viewModel)
-            }
+            self?.show(quiz: viewModel)
+        }
     }
     
     // MARK: - IB Actions
@@ -98,20 +99,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResults() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yy HH:mm"
+        let formattedDate = dateFormatter.string(from: statisticService?.bestGame.date ?? Date())
+        
         if currentQuestionIndex == questionsAmount - 1 {
+            statisticService?.store(correct: correctAnswers, total: questionsAmount)
             let text = correctAnswers == questionsAmount ?
-                    "Поздравляем, вы ответили на 10 из 10!" :
-                    "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+            "Поздравляем, вы ответили на 10 из 10!" :
+            "Ваш результат: \(correctAnswers)/10\n" +
+            "Количество сыгранных квизов \(statisticService?.gamesCount ?? 0)\n" +
+            "Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(questionsAmount) (\(formattedDate))\n" +
+            "Средняя точность \(String(format: "%.2f", statisticService?.totalAccuracy ?? 0))%"
             
             let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
                 message: text,
                 buttonText: "Сыграть ещё раз",
                 completion: { [weak self] in
-                        self?.currentQuestionIndex = 0
-                        self?.correctAnswers = 0
-                        self?.questionFactory?.requestNextQuestion()
-            })
+                    self?.currentQuestionIndex = 0
+                    self?.correctAnswers = 0
+                    self?.questionFactory?.requestNextQuestion()
+                })
             alertPresenter?.show(quiz: alertModel, controller: self)
             
         } else {
