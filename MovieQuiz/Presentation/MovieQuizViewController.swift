@@ -19,6 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticServiceProtocol?
+    private let dateFormatter = DateFormatter()
     
     public func setCurrentQuestionIndexZero() {
         self.currentQuestionIndex = 0
@@ -99,7 +100,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResults() {
-        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yy HH:mm"
         let formattedDate = dateFormatter.string(from: statisticService?.bestGame.date ?? Date())
         

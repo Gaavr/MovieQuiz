@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter {
     
     func show(quiz result: AlertModel, controller: MovieQuizViewController) {
         let alert = UIAlertController(
