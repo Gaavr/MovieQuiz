@@ -65,7 +65,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            self.questionFactory?.requestNextQuestion()
+        
+            self.showLoadingIndicator()
+            self.questionFactory?.loadData()
         }
         
         alertPresenter?.show(quiz: model, controller: self)
@@ -133,7 +135,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         yesButton.isEnabled = false
         noButton.isEnabled = false
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
             self.imageView.layer.borderWidth = 0
             self.showNextQuestionOrResults()
             self.yesButton.isEnabled = true
@@ -148,8 +151,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         if currentQuestionIndex == questionsAmount - 1 {
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
-            let text = correctAnswers == questionsAmount ?
-            "Поздравляем, вы ответили на 10 из 10!" :
+            
+            let text =
             "Ваш результат: \(correctAnswers)/10\n" +
             "Количество сыгранных квизов \(statisticService?.gamesCount ?? 0)\n" +
             "Рекорд: \(statisticService?.bestGame.correct ?? 0)/\(questionsAmount) (\(formattedDate))\n" +
@@ -160,9 +163,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 message: text,
                 buttonText: "Сыграть ещё раз",
                 completion: { [weak self] in
-                    self?.currentQuestionIndex = 0
-                    self?.correctAnswers = 0
-                    self?.questionFactory?.requestNextQuestion()
+                    guard let self = self else { return }  // добавлена слабая ссылка на self
+                    self.currentQuestionIndex = 0
+                    self.correctAnswers = 0
+                    self.questionFactory?.requestNextQuestion()
                 })
             alertPresenter?.show(quiz: alertModel, controller: self)
             
