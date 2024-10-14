@@ -27,17 +27,44 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:MovieQuiz.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+      </TestPlans>
       <Testables>
          <TestableReference
             skipped = "NO"
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9D7DB0D92CB3637700C4565D"
+               BlueprintIdentifier = "9DFBC5382CB86248000769E3"
                BuildableName = "MovieQuizTests.xctest"
                BlueprintName = "MovieQuizTests"
+               ReferencedContainer = "container:MovieQuiz.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "YES"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9D55A3922CB85BCC005F7098"
+               BuildableName = "MovieQuizXCTests.xctest"
+               BlueprintName = "MovieQuizXCTests"
+               ReferencedContainer = "container:MovieQuiz.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9DB88BFC2CBC28390041A238"
+               BuildableName = "MovieQuizUITests.xctest"
+               BlueprintName = "MovieQuizUITests"
                ReferencedContainer = "container:MovieQuiz.xcodeproj">
             </BuildableReference>
          </TestableReference>
