@@ -8,7 +8,6 @@
 import XCTest
 
 class MovieQuizUITests: XCTestCase {
-    // swiftlint:disable:next implicitly_unwrapped_optional
     var app: XCUIApplication!
     
     override func setUpWithError() throws {
@@ -17,50 +16,69 @@ class MovieQuizUITests: XCTestCase {
         app = XCUIApplication()
         app.launch()
         
-        // это специальная настройка для тестов: если один тест не прошёл,
-        // то следующие тесты запускаться не будут; и правда, зачем ждать?
+        // Не продолжаем выполнение, если один тест упал
         continueAfterFailure = false
     }
+    
     override func tearDownWithError() throws {
-        try super.tearDownWithError()
-        
         app.terminate()
         app = nil
+        try super.tearDownWithError()
+    }
+
+    // Вспомогательная функция для ожидания появления элемента
+    func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 5) -> Bool {
+        let predicate = NSPredicate(format: "exists == true")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
     
-    func testYesButton() {
-        sleep(3)
-        
-        let firstPoster = app.images["Poster"]
-        let firstPosterData = firstPoster.screenshot().pngRepresentation
+    // Вспомогательная функция для получения изображения из Poster
+    func getPosterData() -> Data? {
+        let poster = app.images["Poster"]
+        XCTAssertTrue(waitForElement(poster), "Poster не отображается.")
+        return poster.screenshot().pngRepresentation
+    }
+    
+    func testYesButtonChangesPoster() {
+        let firstPosterData = getPosterData()
+        XCTAssertNotNil(firstPosterData, "Первый постер отсутствует.")
         
         app.buttons["Yes"].tap()
-        sleep(3)
         
-        let secondPoster = app.images["Poster"]
-        let secondPosterData = secondPoster.screenshot().pngRepresentation
-        
-        XCTAssertNotEqual(firstPosterData, secondPosterData)
+        let secondPosterData = getPosterData()
+        XCTAssertNotEqual(firstPosterData, secondPosterData, "Постер не изменился после нажатия Yes.")
     }
-    
-    func testNoButton() {
-        sleep(3)
+
+    func testNoButtonChangesPosterAndUpdatesIndex() {
+        let firstPosterData = getPosterData()
+        XCTAssertNotNil(firstPosterData, "Первый постер отсутствует.")
         
-        let firstPoster = app.images["Poster"]
-        let firstPosterData = firstPoster.screenshot().pngRepresentation
+        let indexLabel = app.staticTexts["Index"]
+        XCTAssertTrue(indexLabel.exists, "Label с индексом не отображается.")
         
         app.buttons["No"].tap()
-        sleep(3)
         
-        let secondPoster = app.images["Poster"]
-        let secondPosterData = secondPoster.screenshot().pngRepresentation
+        let secondPosterData = getPosterData()
+        XCTAssertNotEqual(firstPosterData, secondPosterData, "Постер не изменился после нажатия No.")
+        
+        // Ожидание с циклом
+        var isUpdated = false
+        let timeout: TimeInterval = 5
+        let startTime = Date()
 
-        let indexLabel = app.staticTexts["Index"]
-       
-        XCTAssertNotEqual(firstPosterData, secondPosterData)
-        XCTAssertEqual(indexLabel.label, "2/10")
+        while Date().timeIntervalSince(startTime) < timeout {
+            if indexLabel.label == "2/10" {
+                isUpdated = true
+                break
+            }
+            usleep(100_000) // Ждём 0.1 секунду перед следующей проверкой
+        }
+
+        XCTAssertTrue(isUpdated, "Индекс не обновился до '2/10' за \(timeout) секунд.")
     }
-    
+
+
     func testGameFinish() {
         sleep(2)
         for _ in 1...10 {
@@ -68,7 +86,7 @@ class MovieQuizUITests: XCTestCase {
             sleep(2)
         }
 
-        let alert = app.alerts["Game results"]
+        let alert = app.alerts["Этот раунд окончен!"]
         
         XCTAssertTrue(alert.exists)
         XCTAssertTrue(alert.label == "Этот раунд окончен!")
@@ -82,7 +100,7 @@ class MovieQuizUITests: XCTestCase {
             sleep(2)
         }
         
-        let alert = app.alerts["Game results"]
+        let alert = app.alerts["Этот раунд окончен!"]
         alert.buttons.firstMatch.tap()
         
         sleep(2)
